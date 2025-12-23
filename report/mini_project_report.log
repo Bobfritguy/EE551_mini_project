@@ -1,6 +1,6 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2026/dev/Arch Linux) (preloaded format=pdflatex 2025.11.25)  19 DEC 2025 18:58
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2026/dev/Arch Linux) (preloaded format=pdflatex 2025.12.23)  23 DEC 2025 04:42
 entering extended mode
- \write18 enabled.
+ restricted \write18 enabled.
  %&-line parsing enabled.
 **mini_project_report.tex
 (./mini_project_report.tex
@@ -346,14 +346,39 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 
+<figures/pipeline_diagram.png, id=1, 533.995pt x 1090.0725pt>
+File: figures/pipeline_diagram.png Graphic file (type png)
+<use figures/pipeline_diagram.png>
+Package pdftex.def Info: figures/pipeline_diagram.png  used on input line 112.
+(pdftex.def)             Requested size: 252.0pt x 514.42992pt.
 
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 112--113
+ [][] 
+ []
+
+LaTeX Font Info:    Trying to load font information for T1+pcr on input line 15
+4.
+(/usr/share/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+)
 
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf-dist/fon
 ts/enc/dvips/base/8r.enc}
 
 
+]
 
-] (./mini_project_report.aux)
+
+
+[2
+
+]
+
+
+
+[3
+
+ <./figures/pipeline_diagram.png>] (./mini_project_report.aux)
  ***********
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
@@ -361,21 +386,23 @@ L3 programming layer <2025-01-18>
  )
 (\end occurred when \iftrue on line 11 was incomplete) 
 Here is how much of TeX's memory you used:
- 4520 strings out of 475171
- 72142 string characters out of 5767094
- 464573 words of memory out of 5000000
- 27461 multiletter control sequences out of 15000+600000
- 660014 words of font info for 125 fonts, out of 8000000 for 9000
+ 4596 strings out of 475171
+ 73332 string characters out of 5767094
+ 486712 words of memory out of 5000000
+ 27521 multiletter control sequences out of 15000+600000
+ 670335 words of font info for 142 fonts, out of 8000000 for 9000
  17 hyphenation exceptions out of 8191
- 59i,6n,70p,217b,192s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 59i,9n,70p,834b,320s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf-dist/fo
-nts/type1/urw/times/utmb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utm
-bi8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/share/te
-xmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on mini_project_report.pdf (1 page, 42803 bytes).
+nts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmsy7.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.p
+fb></usr/share/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/share/texmf-di
+st/fonts/type1/urw/times/utmbi8a.pfb></usr/share/texmf-dist/fonts/type1/urw/tim
+es/utmr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on mini_project_report.pdf (3 pages, 144290 bytes).
 PDF statistics:
- 29 PDF objects out of 1000 (max. 8388607)
- 17 compressed objects within 1 object stream
+ 53 PDF objects out of 1000 (max. 8388607)
+ 31 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

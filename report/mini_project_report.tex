@@ -68,13 +68,15 @@
 	% As a general rule, do not put math, special symbols or citations
 	% in the abstract or keywords.
 	\begin{abstract}
-	
+		This paper presents a classical computer vision system for detecting and classifying parking spaces as free or occupied from drone imagery. The system combines Canny edge detection, probabilistic Hough transforms, geometric line merging, and box drawing refinements to infer stall geometry. Occupancy classification is performed using a classical feature based scoring method incorporating edge density, gradient energy, and intensity variation within each detected stall.
 	\end{abstract}
+
 	
 	% Note that keywords are not normally used for peerreview papers.
 	\begin{IEEEkeywords}
-		computer vision, car space detection
+		computer vision, embedded image processing, parking space detection, classical vision, occupancy classification
 	\end{IEEEkeywords}
+
 	
 	
 	
@@ -88,6 +90,154 @@
 	
 	
 	\section{Introduction}
+	
+	Automated parking space monitoring is an important problem for intelligent transportation systems. Applications include smart cities, traffic management, and parking area management. This assignment focuses on aerial images, in three sets, easy, medium and hard, with slight variations in viewpoint and angle, and larger variations in parking space composition and the appearance, ranging from cartoonish to realistic, cleaner to noisier surfaces, and lighting variations.
+
+	The objective of this mini-project is to design and implement a classical image processing pipeline capable of detecting parking stalls and determining their occupancy status from the aerial images. The system must operate using only traditional computer vision techniques.
+	
+	In this work, a fully classical pipeline is developed that first detects dominant parking divider lines using edge detection and the probabilistic Hough transform. A modal-angle analysis is used to estimate the global orientation of the parking layout, allowing the image to be rotated to bring it to an orientation where stall dividers are approximately vertical. Detected line segments are merged and filtered using geometric constraints to form stall divider lines, which are then clustered into rows. Quadrilateral parking stall regions are constructed between adjacent divider lines and refined using a combination of Hough line endpoints and Harris corner features. Modal width and height statistics are used to remove spurious detections and to correct merged or fragmented stalls.
+	
+	For occupancy classification, each detected stall is normalised via a perspective transform and analysed using edge density, gradient energy, and intensity variation. An adaptive thresholding strategy is used to classify stalls as empty or occupied.
+	
+	The remainder of this paper is structured as follows. Section~\ref{sec:methodology} describes the proposed methodology. Section~\ref{sec:results} covers results on all test images. Section~\ref{sec:discussion} provides a critical discussion of system performance, robustness, and limitations. Section~\ref{sec:conclusion} concludes the paper and outlines potential directions for future work.
+	
+	\section{Methodology}
+	\label{sec:methodology}
+	\subsection{System Overview}
+	
+	An overview of the proposed parking space detection and occupancy classification pipeline is shown in Fig.~\ref{fig:pipeline}. The system operates sequentially, beginning with low-level edge detection and progressing through geometric reasoning and feature-based classification.
+	
+	\begin{figure}[!t]
+		\centering
+		\fbox{\includegraphics[width=\linewidth]{figures/pipeline_diagram.png}}
+		\caption{Overall processing pipeline for parking stall detection and occupancy classification.}
+		\label{fig:pipeline}
+	\end{figure}
+	
+	% Tabulated Results:
+	% easy - 20.png: 26 spaces, 18 full | detected 26 and detected 18/26 full correctly 
+	% easy - 29.png: 24 spaces, 17 full | detected 24 and detected 17/24 full correctly 
+	% easy - easy.jpg: 14 spaces, 0 full | detected 14 spaces and 0/14 full correctly. 
+	% easy - not_that_easy: 14 spaces, 4 full | detected 14 spaces and 4/14 full correctly. 
+	
+	% medium - 12.png: 39 spaces, 12 full | detected 39 spaces correctly, with 1 space being a bit malformed, if in roughly the correct area. Correctly detects the 12 full parking spaces. 
+	% medium - 30.png: 34 spaces, 16 full | detected all 34 spaces, correctly classified 6 occupied spaces, but had issues classifying the remaining spaces as the cars are much darker, it appears they blend in with the blacker tarmac surface. medium - 31.png: 20 spaces, 10 full. | detects only 18 spaces, of which 8 are full, but it only detects 7 of the full spaces. 
+	% medium - 20.png: 26 spaces, 18 full | correctly detects all 26 spaces, and all 18 full spots. 
+	
+	% hard - 21.png: 8 spaces, 7 full | detected 8 spaces, detected 6/8 full, incorrectly.The issue here is likely related to the fact that the detected stalls are a bit malformed due to the methods we used. 
+	% hard - frame1.jpg: 179 spaces | here we get some deformities in the spaces. 122 spaces detected, 10 of which are incorrect detections (no space exists for the detection). There were 9 malformed detections, that is detections that maybe cover 2 seperate stalls, or are just way out of whack. 37 spaces were missed. Of the correctly detected spaces 20 were full. 2 of the incorrect detected spaces had an incorrect classification as full. And 2 more of the malformed spaces which did contain cars correctly were classified as full
+	% hard - frame600.png 35 spaces, 7 occupied | Correctly detects 35 spaces, correctly detects all 7 occupations, but incorrectly detects a dirtier (noisier) stall as being occupied aswell.
+	
+	\section{Results}
+	\label{sec:results}
+	
+	\subsection{Quantitative Evaluation}
+	
+	Table~\ref{tab:quant_results} summarises the localisation and occupancy performance
+	for each of the ten test images. For each image, the table lists the manually
+	counted number of true parking stalls, the number of stalls detected by the
+	pipeline, the resulting detection rate, and the number of truly occupied stalls
+	together with the number correctly classified as occupied. Because most errors
+	arise from missed detections of occupied stalls rather than false positives, the
+	final column reports an occupied--stall recall percentage, defined as
+	\emph{correct occupied}~/~\emph{true occupied}.
+	
+	\begin{table*}[!t]
+		\centering
+		\footnotesize
+		\caption{Per--image localisation and occupancy performance.}
+		\label{tab:quant_results}
+		\begin{tabular}{|l|c|r|r|c|r|r|c|}
+			\hline
+			Image                & Set & True & Det. & Det. [\%] & Occ. & Occ. corr. & Rec. [\%] \\
+			\hline
+			\texttt{20.png}              & Easy   & 26  & 26  & 100.0 & 18 & 18 & 100.0 \\
+			\texttt{29.png}              & Easy   & 24  & 24  & 100.0 & 17 & 17 & 100.0 \\
+			\texttt{easy.jpg}            & Easy   & 14  & 14  & 100.0 &  0 &  0 & n/a   \\
+			\texttt{not\_that\_easy.jpg} & Easy   & 14  & 14  & 100.0 &  4 &  4 & 100.0 \\
+			\hline
+			\texttt{12.png}              & Medium & 39  & 39  & 100.0 & 12 & 12 & 100.0 \\
+			\texttt{30.png}              & Medium & 34  & 34  & 100.0 & 16 &  6 &  37.5 \\
+			\texttt{31.png}              & Medium & 20  & 18  &  90.0 & 10 &  7 &  70.0 \\
+			\texttt{20.png}              & Medium & 26  & 26  & 100.0 & 18 & 18 & 100.0 \\
+			\hline
+			\texttt{21.png}              & Hard   &  8  &  8  & 100.0 &  7 &  6 &  85.7 \\
+			\texttt{frame600.jpg}        & Hard   & 35  & 35  & 100.0 &  7 &  7 & 100.0 \\
+			\texttt{frame1.jpg}          & Hard   & 179 & 122 &  68.2 & 20 & 20 & 100.0 \\
+			\hline
+		\end{tabular}
+	\end{table*}
+	
+	\subsubsection{Scene--wise Performance Analysis}
+	AI RUBBISH BELOW
+	The observed performance variations across the easy, medium, and hard image
+	sets can be largely explained by differences in scene geometry, viewpoint,
+	surface appearance, and marking visibility.
+	
+	The \emph{easy} image set consists primarily of stylised or cartoon--like scenes,
+	with uniformly coloured surfaces, clearly delineated stall markings, and a
+	camera viewpoint that is close to perfectly perpendicular to the parking plane.
+	These characteristics produce strong edge responses for both stall boundaries
+	and vehicle contours, while minimising occlusion and perspective distortion.
+	Consequently, the proposed pipeline achieves perfect stall localisation and
+	occupancy recall on all easy images. Even in the one realistic easy image, the
+	high contrast between vehicles, surface texture, and painted markings ensures
+	robust performance across all processing stages.
+	
+	The \emph{medium} image set introduces increased geometric and photometric
+	complexity. Image \texttt{12.png} remains close to a perpendicular aerial view,
+	but contains shadowing effects and grassy dividers that introduce additional
+	edges not related to stall geometry. Despite this, the dominant stall structure
+	remains sufficiently regular for correct localisation and occupancy
+	classification. In contrast, \texttt{30.png} presents a significantly skewed
+	viewpoint, causing stall divider orientations to vary by more than
+	$20^{\circ}$ across the image. In combination with tall vehicles that obscure
+	stall lines and a very dark tarmac surface, this reduces both the reliability of
+	line detection and the contrast available to the occupancy features. As a
+	result, while stall localisation remains accurate, many occupied stalls are
+	misclassified as empty. Image \texttt{31.png} again benefits from a near--nadir
+	view, but contains several partially occluded divider lines. One stall is lost
+	due to local noise, while another is removed by filtering steps introduced to
+	improve robustness on more challenging images, illustrating a trade--off
+	between generality and scene--specific optimisation.
+	
+	The \emph{hard} image set highlights the principal limitations of the current
+	approach. Image \texttt{frame600.jpg} exhibits a noisy cobbled surface and a
+	non--aligned viewpoint. Early experimentation showed that downscaling reduced
+	the impact of high--frequency surface noise, though this was not required in the
+	final general pipeline. Some stalls in this image are slightly truncated at
+	their upper boundaries, leading the height--based splitting stage to produce
+	minor geometric misalignments, visible as small offsets between stall boxes and
+	divider lines. Nevertheless, both stall detection and occupancy classification
+	remain largely correct, with only a single noisy empty stall incorrectly
+	classified as occupied.
+	
+	Image \texttt{frame1.jpg} represents the most challenging scenario. It is
+	substantially larger than the other images, with stall widths in pixel units
+	approximately half those seen elsewhere. The scene contains significant
+	background clutter, including sheds, footpaths, road markings, and non--parking
+	regions that generate strong edges unrelated to stall geometry. Although
+	separate parameter adjustments were required for this image, substantial
+	localisation errors remain. Painted road markings and surrounding structures
+	lead to false stall detections, while approximately 25 stalls in a different
+	colour scheme are not adequately captured by processing stages that implicitly
+	assume white divider markings. In addition, stall widths vary considerably,
+	particularly along the upper row (from approximately 84 to 100 pixels), which
+	violates the modal--width assumption used during stall generation and refinement.
+	These factors collectively result in missed, malformed, and spurious stall
+	detections, even though occupancy classification remains reliable once a stall
+	is correctly localised.
+	
+	Overall, these results demonstrate that while the proposed classical pipeline is
+	highly effective under controlled geometric and photometric conditions, its
+	performance degrades in the presence of strong perspective distortion, heavy
+	occlusion, heterogeneous stall appearance, and large--scale background clutter.
+
+	\section{Discussion and Critique}
+	\label{sec:discussion}
+	
+	\section{Conclusion and Future Work}
+	\label{sec:conclusion}
 	
 	
 	
